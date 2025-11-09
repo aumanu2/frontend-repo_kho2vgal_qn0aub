@@ -9,10 +9,19 @@ function toTime(t) {
 export default function Results({ imageUrl, results, onReset }) {
   const hasResults = Array.isArray(results) && results.length > 0
 
+  const getAniListUrl = (anilistId) => `https://anilist.co/anime/${anilistId}`
+
   const openAniList = (anilistId) => {
     if (!anilistId) return
-    const url = `https://anilist.co/anime/${anilistId}`
+    const url = getAniListUrl(anilistId)
     window.open(url, '_blank', 'noopener,noreferrer')
+  }
+
+  const handleKey = (e, anilistId) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      openAniList(anilistId)
+    }
   }
 
   return (
@@ -31,38 +40,55 @@ export default function Results({ imageUrl, results, onReset }) {
         {!hasResults && (
           <div className="text-center text-gray-600">Tidak ada hasil.</div>
         )}
-        {hasResults && results.map((r, idx) => (
-          <button
-            key={idx}
-            onClick={() => openAniList(r?.anilist?.id)}
-            className="text-left w-full"
-          >
-            <div className="flex flex-col md:flex-row gap-4 rounded-xl border border-gray-200 bg-white overflow-hidden hover:border-indigo-300 focus-visible:ring-2 focus-visible:ring-indigo-500 transition">
-              <div className="md:w-1/2 aspect-video bg-black">
-                {r.video ? (
-                  <video src={r.video} className="w-full h-full object-cover" autoPlay muted loop playsInline />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-white/80">No preview</div>
-                )}
-              </div>
-              <div className="p-4 md:w-1/2">
-                <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                  {r?.anilist?.title?.romaji || r.filename || 'Judul tidak diketahui'}
-                </h3>
-                {typeof r.similarity === 'number' && (
-                  <div className="text-sm mb-2">Kecocokan <span className="text-indigo-600 font-medium">{Math.round(r.similarity * 100)}%</span></div>
-                )}
-                <div className="text-sm text-gray-600 space-y-1">
-                  {r.episode !== undefined && <div>Episode: {r.episode}</div>}
-                  {(r.from !== undefined && r.to !== undefined) && (
-                    <div>Waktu: {toTime(r.from)} - {toTime(r.to)}</div>
+        {hasResults && results.map((r, idx) => {
+          const anilistId = r?.anilist?.id
+          const anilistUrl = anilistId ? getAniListUrl(anilistId) : '#'
+          return (
+            <div
+              key={idx}
+              role="button"
+              tabIndex={0}
+              onClick={() => openAniList(anilistId)}
+              onKeyDown={(e) => handleKey(e, anilistId)}
+              className="text-left w-full cursor-pointer"
+            >
+              <div className="flex flex-col md:flex-row gap-4 rounded-xl border border-gray-200 bg-white overflow-hidden hover:border-indigo-300 focus-within:ring-2 focus-within:ring-indigo-500 transition">
+                <div className="md:w-1/2 aspect-video bg-black">
+                  {r.video ? (
+                    <video src={r.video} className="w-full h-full object-cover" autoPlay muted loop playsInline />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-white/80">No preview</div>
                   )}
                 </div>
-                <div className="mt-3 inline-flex items-center text-indigo-600 text-sm">Buka di AniList →</div>
+                <div className="p-4 md:w-1/2">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-1">
+                    {r?.anilist?.title?.romaji || r.filename || 'Judul tidak diketahui'}
+                  </h3>
+                  {typeof r.similarity === 'number' && (
+                    <div className="text-sm mb-2">Kecocokan <span className="text-indigo-600 font-medium">{Math.round(r.similarity * 100)}%</span></div>
+                  )}
+                  <div className="text-sm text-gray-600 space-y-1">
+                    {r.episode !== undefined && <div>Episode: {r.episode}</div>}
+                    {(r.from !== undefined && r.to !== undefined) && (
+                      <div>Waktu: {toTime(r.from)} - {toTime(r.to)}</div>
+                    )}
+                  </div>
+                  <div className="mt-3">
+                    <a
+                      href={anilistUrl}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center text-indigo-600 hover:text-indigo-700 underline underline-offset-4 text-sm"
+                    >
+                      Buka di AniList →
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
-          </button>
-        ))}
+          )
+        })}
       </main>
     </div>
   )
