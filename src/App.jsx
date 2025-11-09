@@ -1,132 +1,119 @@
-import React, { useState } from 'react'
-import Header from './components/Header'
-import Dropzone from './components/Dropzone'
-import Results from './components/Results'
-import Footer from './components/Footer'
-import IntroHero from './components/IntroHero'
-import ResponsiveContainer from './components/ResponsiveContainer'
-import LoadingArt from './components/LoadingArt'
+import React, { useCallback, useEffect, useState } from 'react';
+import Header from './components/Header';
+import IntroHero from './components/IntroHero';
+import ResponsiveContainer from './components/ResponsiveContainer';
+import Dropzone from './components/Dropzone';
+import Results from './components/Results';
+import Footer from './components/Footer';
+import LoadingArt from './components/LoadingArt';
+import AnalysisView from './components/AnalysisView';
 
-async function searchByImageFile(file) {
-  const form = new FormData()
-  form.append('image', file)
-  const res = await fetch('https://api.trace.moe/search', { method: 'POST', body: form })
-  if (!res.ok) throw new Error('Search failed')
-  const data = await res.json()
-  return data?.result || []
-}
-
-async function searchByImageUrl(url) {
-  const q = new URLSearchParams({ url })
-  const res = await fetch(`https://api.trace.moe/search?${q.toString()}`)
-  if (!res.ok) throw new Error('Search failed')
-  const data = await res.json()
-  return data?.result || []
-}
+const TRACE_API = 'https://api.trace.moe/search';
 
 export default function App() {
-  const [mode, setMode] = useState('idle') // idle | loading | results | noresult
-  const [imageUrl, setImageUrl] = useState('')
-  const [results, setResults] = useState([])
+  const [mode, setMode] = useState('idle'); // idle | loading | results | noresult
+  const [results, setResults] = useState([]);
+  const [previewUrl, setPreviewUrl] = useState('');
 
-  const handleFile = async (file) => {
+  // paste URL handler on window
+  useEffect(() => {
+    function onPaste(e) {
+      const text = e.clipboardData?.getData('text');
+      if (!text) return;
+      try {
+        const url = new URL(text);
+        if (url.protocol.startsWith('http')) {
+          setPreviewUrl(url.toString());
+          searchByImageUrl(url.toString());
+        }
+      } catch (_) {
+        // not a url
+      }
+    }
+    window.addEventListener('paste', onPaste);
+    return () => window.removeEventListener('paste', onPaste);
+  }, []);
+
+  const searchByImageFile = useCallback(async (file) => {
+    // show realtime-style preview immediately
+    const localUrl = URL.createObjectURL(file);
+    setPreviewUrl(localUrl);
+
+    setMode('loading');
+    setResults([]);
     try {
-      setMode('loading')
-      const objectUrl = URL.createObjectURL(file)
-      setImageUrl(objectUrl)
-      const res = await searchByImageFile(file)
-      if (!res || res.length === 0) {
-        setResults([])
-        setMode('noresult')
+      const formData = new FormData();
+      formData.append('image', file);
+      const res = await fetch(TRACE_API, { method: 'POST', body: formData });
+      const data = await res.json();
+      const list = data?.result || [];
+      if (list.length > 0) {
+        setResults(list);
+        setMode('results');
       } else {
-        setResults(res)
-        setMode('results')
+        setMode('noresult');
       }
     } catch (e) {
-      console.error(e)
-      setResults([])
-      setMode('noresult')
+      setMode('noresult');
     }
-  }
+  }, []);
 
-  const handlePasteUrl = async (e) => {
-    const text = e.clipboardData?.getData('text')
-    if (!text) return
+  const searchByImageUrl = useCallback(async (url) => {
+    // show pasted URL as the preview right away
+    setPreviewUrl(url);
+
+    setMode('loading');
+    setResults([]);
     try {
-      setMode('loading')
-      setImageUrl(text)
-      const res = await searchByImageUrl(text)
-      if (!res || res.length === 0) {
-        setResults([])
-        setMode('noresult')
+      const res = await fetch(`${TRACE_API}?url=${encodeURIComponent(url)}`);
+      const data = await res.json();
+      const list = data?.result || [];
+      if (list.length > 0) {
+        setResults(list);
+        setMode('results');
       } else {
-        setResults(res)
-        setMode('results')
+        setMode('noresult');
       }
     } catch (e) {
-      console.error(e)
-      setResults([])
-      setMode('noresult')
+      setMode('noresult');
     }
-  }
+  }, []);
 
-  const reset = () => {
-    setMode('idle')
-    setResults([])
-    setImageUrl('')
-  }
+  const showAnalysis = mode === 'loading' || mode === 'results' || mode === 'noresult';
 
   return (
-    <div className="min-h-screen bg-[#F9F9F9] text-[#222222] flex flex-col" onPaste={handlePasteUrl}>
+    <div className="min-h-screen flex flex-col bg-white text-slate-900">
       <Header />
-
-      <div className="flex-1">
+      <main className="flex-1">
         <IntroHero />
+        <ResponsiveContainer>
+          {!showAnalysis && (
+            <Dropzone onFile={searchByImageFile} />
+          )}
 
-        {mode === 'idle' && (
-          <main className="pb-10">
-            <ResponsiveContainer>
-              <div className="w-full flex justify-center">
-                <div className="w-full max-w-3xl">
-                  <Dropzone onFile={handleFile} />
+          {showAnalysis && (
+            <div className="py-6">
+              <AnalysisView
+                previewUrl={previewUrl}
+                loading={mode === 'loading'}
+                results={results}
+                noresult={mode === 'noresult'}
+              />
+              {mode !== 'loading' && (
+                <div className="mt-8">
+                  <Dropzone onFile={searchByImageFile} />
                 </div>
-              </div>
-            </ResponsiveContainer>
-          </main>
-        )}
-
-        {mode === 'loading' && (
-          <main className="py-10 sm:py-16">
-            <ResponsiveContainer>
-              <LoadingArt />
-            </ResponsiveContainer>
-          </main>
-        )}
-
-        {mode === 'results' && (
-          <main className="py-10">
-            <ResponsiveContainer>
-              <Results imageUrl={imageUrl} results={results} onReset={reset} />
-            </ResponsiveContainer>
-          </main>
-        )}
-
-        {mode === 'noresult' && (
-          <main className="py-20">
-            <ResponsiveContainer>
-              <div className="w-full max-w-3xl mx-auto text-center">
-                <p className="text-sm text-gray-700">Tidak ada yang cocok.</p>
-                <p className="mt-1 text-xs text-gray-500">Coba gunakan tangkapan layar yang lebih jelas atau tanpa subtitle.</p>
-                <div className="mt-6">
-                  <button onClick={reset} className="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white">Coba Lagi</button>
+              )}
+              {mode === 'loading' && (
+                <div className="sr-only">
+                  <LoadingArt />
                 </div>
-              </div>
-            </ResponsiveContainer>
-          </main>
-        )}
-      </div>
-
+              )}
+            </div>
+          )}
+        </ResponsiveContainer>
+      </main>
       <Footer />
     </div>
-  )
+  );
 }

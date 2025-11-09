@@ -1,14 +1,12 @@
 import React from 'react';
-import ResponsiveContainer from './ResponsiveContainer';
 
 export default function IntroHero() {
   return (
-    <section className="py-10 sm:py-16">
-      <ResponsiveContainer>
-        <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-center text-gray-900">
-          Cari adegan anime
-        </h1>
-      </ResponsiveContainer>
+    <section className="mx-auto max-w-5xl px-4 py-12">
+      <div className="text-center">
+        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">Cari adegan anime</h2>
+        <p className="mt-3 text-slate-600">Unggah gambar adegan, kami cari sumbernya.</p>
+      </div>
     </section>
   );
 }

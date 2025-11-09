@@ -1,18 +1,15 @@
 import React from 'react';
-import ResponsiveContainer from './ResponsiveContainer';
 
 export default function Footer() {
   return (
-    <footer className="mt-auto bg-transparent border-t border-gray-200">
-      <ResponsiveContainer>
-        <div className="py-6 text-sm text-gray-600 flex flex-wrap items-center justify-between gap-3">
-          <p className="opacity-80">Built for anime scene search</p>
-          <div className="flex items-center gap-4">
-            <a className="hover:text-gray-900 transition" href="https://github.com/" target="_blank" rel="noreferrer">GitHub</a>
-            <a className="hover:text-gray-900 transition" href="https://www.linkedin.com/" target="_blank" rel="noreferrer">LinkedIn</a>
-          </div>
+    <footer className="mt-auto border-t border-black/10 bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/50">
+      <div className="mx-auto max-w-5xl px-4 py-6 flex items-center justify-between text-sm text-slate-600">
+        <span>© {new Date().getFullYear()} simpel</span>
+        <div className="flex items-center gap-4">
+          <a href="https://github.com/" target="_blank" className="hover:text-slate-900">GitHub</a>
+          <a href="https://www.linkedin.com/" target="_blank" className="hover:text-slate-900">LinkedIn</a>
         </div>
-      </ResponsiveContainer>
+      </div>
     </footer>
   );
 }

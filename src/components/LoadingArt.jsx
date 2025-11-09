@@ -1,40 +1,36 @@
 import React, { useEffect, useState } from 'react';
 
 export default function LoadingArt() {
-  const [imgUrl, setImgUrl] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-
-  const fetchArt = async () => {
-    try {
-      setIsLoading(true);
-      const res = await fetch('https://api.waifu.pics/sfw/waifu');
-      if (!res.ok) throw new Error('failed');
-      const data = await res.json();
-      setImgUrl(data?.url || '');
-    } catch (e) {
-      // silent fail; shows skeleton
-      setImgUrl('');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [img, setImg] = useState('');
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    let active = true;
+    async function fetchArt() {
+      try {
+        const res = await fetch('https://api.waifu.pics/sfw/waifu');
+        const data = await res.json();
+        if (active && data?.url) setImg(data.url);
+      } catch (e) {
+        // silently ignore
+      }
+    }
     fetchArt();
+    return () => { active = false; };
   }, []);
 
   return (
-    <div className="w-full max-w-3xl mx-auto flex flex-col items-center">
-      <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] overflow-hidden rounded-xl border border-gray-200 bg-gray-100">
-        {isLoading && (
-          <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-gray-100 to-gray-200" aria-hidden="true" />
+    <div className="w-full max-w-xl mx-auto">
+      <div className="aspect-square overflow-hidden rounded-xl border border-black/10 bg-gradient-to-br from-slate-100 to-slate-200">
+        {!loaded && (
+          <div className="animate-pulse h-full w-full bg-gradient-to-br from-indigo-50 to-fuchsia-50" />
         )}
-        {imgUrl && (
+        {img && (
           <img
-            src={imgUrl}
-            alt=""
-            className="absolute inset-0 h-full w-full object-cover"
-            onLoad={() => setIsLoading(false)}
+            src={img}
+            alt="Loading art"
+            onLoad={() => setLoaded(true)}
+            className={`h-full w-full object-cover ${loaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-500`}
           />
         )}
       </div>

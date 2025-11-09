@@ -1,37 +1,37 @@
-import React, { useRef } from 'react'
+import React, { useCallback, useRef, useState } from 'react';
 
 export default function Dropzone({ onFile }) {
-  const inputRef = useRef(null)
-  const handleClick = () => inputRef.current?.click()
+  const inputRef = useRef(null);
+  const [dragOver, setDragOver] = useState(false);
 
-  const handleDrop = (e) => {
-    e.preventDefault()
-    const file = e.dataTransfer.files?.[0]
-    if (file) onFile(file)
-  }
+  const onSelect = useCallback((e) => {
+    const file = e.target.files?.[0];
+    if (file) onFile(file);
+  }, [onFile]);
 
-  const handleChange = (e) => {
-    const file = e.target.files?.[0]
-    if (file) onFile(file)
-  }
+  const onDrop = useCallback((e) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) onFile(file);
+  }, [onFile]);
 
   return (
     <div
-      onDrop={handleDrop}
-      onDragOver={(e) => e.preventDefault()}
-      className="w-full max-w-2xl mx-auto border-2 border-dashed rounded-2xl p-8 sm:p-10 bg-[#F9F9F9] border-gray-200 text-center transition-all"
+      onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+      onDragLeave={() => setDragOver(false)}
+      onDrop={onDrop}
+      className={`relative rounded-xl border-2 border-dashed p-8 transition-colors cursor-pointer ${dragOver ? 'border-indigo-500 bg-indigo-50' : 'border-slate-300 hover:border-slate-400'}`}
+      onClick={() => inputRef.current?.click()}
+      role="button"
+      aria-label="Upload image"
     >
-      <p className="text-2xl sm:text-3xl font-medium text-gray-900 mb-6">Temukan adegan anime.</p>
-      <div className="mb-6">
-        <div className="text-xs text-gray-500 mb-2">Seret & lepas gambar, atau</div>
-        <button
-          onClick={handleClick}
-          className="inline-flex items-center justify-center px-4 py-2 rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition-colors"
-        >
-          Pilih Berkas
-        </button>
+      <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={onSelect} />
+      <div className="text-center">
+        <p className="text-slate-800 font-medium">Tarik & lepaskan gambar ke sini</p>
+        <p className="text-slate-500 text-sm mt-1">atau klik untuk memilih file</p>
+        <p className="text-slate-400 text-xs mt-2">Tip: tempel URL gambar lalu Enter</p>
       </div>
-      <input ref={inputRef} onChange={handleChange} type="file" accept="image/*" className="hidden" />
     </div>
-  )
+  );
 }

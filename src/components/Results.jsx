@@ -1,106 +1,45 @@
-import React from 'react'
+import React from 'react';
 
-function toTime(t) {
-  const m = Math.floor(t / 60)
-  const s = Math.floor(t % 60)
-  return `${m}:${s.toString().padStart(2, '0')}`
+function ResultCard({ item }) {
+  const title = item?.anilist?.title?.native || item?.anilist?.title?.romaji || 'Unknown';
+  const episode = item?.episode != null ? `Episode ${item.episode}` : 'Episode ?';
+  const similarity = item?.similarity ? Math.round(item.similarity * 100) : 0;
+  const cover = item?.image;
+  const anilistId = item?.anilist?.id || item?.anilist;
+  const anilistUrl = anilistId ? `https://anilist.co/anime/${anilistId}` : '#';
+
+  return (
+    <a href={anilistUrl} target="_blank" rel="noreferrer" className="group block overflow-hidden rounded-lg border border-black/10 bg-white shadow-sm hover:shadow transition">
+      <div className="aspect-video bg-slate-100 overflow-hidden">
+        {cover ? (
+          <img src={cover} alt={title} className="h-full w-full object-cover group-hover:scale-[1.02] transition" />
+        ) : (
+          <div className="h-full w-full bg-gradient-to-br from-indigo-50 to-fuchsia-50" />
+        )}
+      </div>
+      <div className="p-3">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="font-medium text-slate-900 truncate" title={title}>{title}</h3>
+          <span className="text-xs rounded-full bg-slate-100 px-2 py-0.5 text-slate-600">{similarity}%</span>
+        </div>
+        <p className="text-sm text-slate-600 mt-1">{episode}</p>
+      </div>
+    </a>
+  );
 }
 
-function getAniListId(result) {
-  // trace.moe can return either anilist: number OR anilist: { id, ... }
-  if (typeof result?.anilist === 'number') return result.anilist
-  return result?.anilist?.id
-}
-
-function getAniListUrl(id) {
-  return `https://anilist.co/anime/${id}`
-}
-
-export default function Results({ imageUrl, results, onReset }) {
-  const hasResults = Array.isArray(results) && results.length > 0
-
-  const openAniList = (id) => {
-    if (!id) return
-    const url = getAniListUrl(id)
-    window.open(url, '_blank', 'noopener,noreferrer')
-  }
-
-  const handleKey = (e, id) => {
-    if ((e.key === 'Enter' || e.key === ' ') && id) {
-      e.preventDefault()
-      openAniList(id)
-    }
+export default function Results({ data }) {
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    return (
+      <div className="text-center text-slate-600">Tidak ada hasil yang cocok.</div>
+    );
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-6">
-      <aside className="md:col-span-3 space-y-4">
-        <div className="rounded-xl border border-gray-200 overflow-hidden bg-white">
-          {imageUrl ? (
-            <img src={imageUrl} alt="uploaded" className="w-full h-auto" />
-          ) : (
-            <div className="p-8 text-center text-sm text-gray-500">Tidak ada gambar</div>
-          )}
-        </div>
-        <button onClick={onReset} className="w-full py-2.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white">Cari Lagi</button>
-      </aside>
-      <main className="md:col-span-9 space-y-4">
-        {!hasResults && (
-          <div className="text-center text-gray-600">Tidak ada hasil.</div>
-        )}
-        {hasResults && results.map((r, idx) => {
-          const anilistId = getAniListId(r)
-          const anilistUrl = anilistId ? getAniListUrl(anilistId) : undefined
-          const clickable = Boolean(anilistId)
-          return (
-            <div
-              key={idx}
-              role={clickable ? 'button' : undefined}
-              tabIndex={clickable ? 0 : -1}
-              onClick={clickable ? () => openAniList(anilistId) : undefined}
-              onKeyDown={clickable ? (e) => handleKey(e, anilistId) : undefined}
-              className={`text-left w-full ${clickable ? 'cursor-pointer' : 'cursor-default'}`}
-            >
-              <div className="flex flex-col md:flex-row gap-4 rounded-xl border border-gray-200 bg-white overflow-hidden hover:border-indigo-300 focus-within:ring-2 focus-within:ring-indigo-500 transition">
-                <div className="md:w-1/2 aspect-video bg-black">
-                  {r.video ? (
-                    <video src={r.video} className="w-full h-full object-cover" autoPlay muted loop playsInline />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-white/80">No preview</div>
-                  )}
-                </div>
-                <div className="p-4 md:w-1/2">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                    {r?.anilist?.title?.romaji || r.filename || 'Judul tidak diketahui'}
-                  </h3>
-                  {typeof r.similarity === 'number' && (
-                    <div className="text-sm mb-2">Kecocokan <span className="text-indigo-600 font-medium">{Math.round(r.similarity * 100)}%</span></div>
-                  )}
-                  <div className="text-sm text-gray-600 space-y-1">
-                    {r.episode !== undefined && <div>Episode: {r.episode}</div>}
-                    {(r.from !== undefined && r.to !== undefined) && (
-                      <div>Waktu: {toTime(r.from)} - {toTime(r.to)}</div>
-                    )}
-                  </div>
-                  {anilistUrl && (
-                    <div className="mt-3">
-                      <a
-                        href={anilistUrl}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                        onClick={(e) => e.stopPropagation()}
-                        className="inline-flex items-center text-indigo-600 hover:text-indigo-700 underline underline-offset-4 text-sm"
-                      >
-                        Buka di AniList →
-                      </a>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )
-        })}
-      </main>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {data.map((item, idx) => (
+        <ResultCard key={idx} item={item} />
+      ))}
     </div>
-  )
+  );
 }

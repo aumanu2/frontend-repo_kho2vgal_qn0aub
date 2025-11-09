@@ -1,8 +1,8 @@
 import React from 'react';
 
-export default function ResponsiveContainer({ children, className = '' }) {
+export default function ResponsiveContainer({ children }) {
   return (
-    <div className={`mx-auto w-full max-w-7xl px-4 sm:px-6 ${className}`}>
+    <div className="mx-auto max-w-5xl px-4">
       {children}
     </div>
   );
