@@ -5,6 +5,7 @@ import Results from './components/Results'
 import Footer from './components/Footer'
 import IntroHero from './components/IntroHero'
 import ResponsiveContainer from './components/ResponsiveContainer'
+import LoadingArt from './components/LoadingArt'
 
 async function searchByImageFile(file) {
   const form = new FormData()
@@ -95,12 +96,9 @@ export default function App() {
         )}
 
         {mode === 'loading' && (
-          <main className="py-16">
+          <main className="py-10 sm:py-16">
             <ResponsiveContainer>
-              <div className="w-full max-w-3xl mx-auto flex flex-col items-center">
-                <div className="h-12 w-12 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin" aria-label="Loading" />
-                <p className="mt-4 text-center text-sm text-gray-600">Mencari di arsip...</p>
-              </div>
+              <LoadingArt />
             </ResponsiveContainer>
           </main>
         )}
