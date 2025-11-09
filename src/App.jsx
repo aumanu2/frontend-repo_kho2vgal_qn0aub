@@ -2,6 +2,9 @@ import React, { useState } from 'react'
 import Header from './components/Header'
 import Dropzone from './components/Dropzone'
 import Results from './components/Results'
+import Footer from './components/Footer'
+import IntroHero from './components/IntroHero'
+import ResponsiveContainer from './components/ResponsiveContainer'
 
 async function searchByImageFile(file) {
   const form = new FormData()
@@ -76,49 +79,54 @@ export default function App() {
     <div className="min-h-screen bg-[#F9F9F9] text-[#222222]" onPaste={handlePasteUrl}>
       <Header />
 
+      <IntroHero />
+
       {mode === 'idle' && (
-        <main className="px-6 py-10 flex flex-col items-center">
-          <div className="w-full max-w-3xl">
-            <Dropzone onFile={handleFile} />
-            <p className="mt-4 text-center text-xs text-gray-500">Tip: Kamu bisa paste URL gambar langsung (Ctrl/⌘+V)</p>
-          </div>
+        <main className="pb-10">
+          <ResponsiveContainer>
+            <div className="w-full flex justify-center">
+              <div className="w-full max-w-3xl">
+                <Dropzone onFile={handleFile} />
+              </div>
+            </div>
+          </ResponsiveContainer>
         </main>
       )}
 
       {mode === 'loading' && (
-        <main className="px-6 py-24 flex flex-col items-center">
-          <div className="w-full max-w-3xl flex flex-col items-center">
-            <div className="h-12 w-12 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin" aria-label="Loading" />
-            <p className="mt-4 text-center text-sm text-gray-600">Mencari di arsip...</p>
-          </div>
+        <main className="py-16">
+          <ResponsiveContainer>
+            <div className="w-full max-w-3xl mx-auto flex flex-col items-center">
+              <div className="h-12 w-12 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin" aria-label="Loading" />
+              <p className="mt-4 text-center text-sm text-gray-600">Mencari di arsip...</p>
+            </div>
+          </ResponsiveContainer>
         </main>
       )}
 
       {mode === 'results' && (
-        <main className="px-6 py-10">
-          <Results imageUrl={imageUrl} results={results} onReset={reset} />
+        <main className="py-10">
+          <ResponsiveContainer>
+            <Results imageUrl={imageUrl} results={results} onReset={reset} />
+          </ResponsiveContainer>
         </main>
       )}
 
       {mode === 'noresult' && (
-        <main className="px-6 py-24 flex flex-col items-center">
-          <div className="w-full max-w-3xl text-center">
-            <p className="text-sm text-gray-700">Tidak ada yang cocok.</p>
-            <p className="mt-1 text-xs text-gray-500">Coba gunakan tangkapan layar yang lebih jelas atau tanpa subtitle.</p>
-            <div className="mt-6">
-              <button onClick={reset} className="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white">Coba Lagi</button>
+        <main className="py-20">
+          <ResponsiveContainer>
+            <div className="w-full max-w-3xl mx-auto text-center">
+              <p className="text-sm text-gray-700">Tidak ada yang cocok.</p>
+              <p className="mt-1 text-xs text-gray-500">Coba gunakan tangkapan layar yang lebih jelas atau tanpa subtitle.</p>
+              <div className="mt-6">
+                <button onClick={reset} className="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white">Coba Lagi</button>
+              </div>
             </div>
-          </div>
+          </ResponsiveContainer>
         </main>
       )}
 
-      <footer className="px-6 py-8 text-center text-[11px] text-gray-500">
-        <div className="flex items-center justify-center gap-4">
-          <a href="https://github.com/otaruram" target="_blank" rel="noreferrer" className="hover:text-indigo-700 underline underline-offset-4">GitHub</a>
-          <span className="text-gray-300">•</span>
-          <a href="https://www.linkedin.com/in/otaruram/" target="_blank" rel="noreferrer" className="hover:text-indigo-700 underline underline-offset-4">LinkedIn</a>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }
