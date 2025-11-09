@@ -76,55 +76,57 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F9F9F9] text-[#222222]" onPaste={handlePasteUrl}>
+    <div className="min-h-screen bg-[#F9F9F9] text-[#222222] flex flex-col" onPaste={handlePasteUrl}>
       <Header />
 
-      <IntroHero />
+      <div className="flex-1">
+        <IntroHero />
 
-      {mode === 'idle' && (
-        <main className="pb-10">
-          <ResponsiveContainer>
-            <div className="w-full flex justify-center">
-              <div className="w-full max-w-3xl">
-                <Dropzone onFile={handleFile} />
+        {mode === 'idle' && (
+          <main className="pb-10">
+            <ResponsiveContainer>
+              <div className="w-full flex justify-center">
+                <div className="w-full max-w-3xl">
+                  <Dropzone onFile={handleFile} />
+                </div>
               </div>
-            </div>
-          </ResponsiveContainer>
-        </main>
-      )}
+            </ResponsiveContainer>
+          </main>
+        )}
 
-      {mode === 'loading' && (
-        <main className="py-16">
-          <ResponsiveContainer>
-            <div className="w-full max-w-3xl mx-auto flex flex-col items-center">
-              <div className="h-12 w-12 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin" aria-label="Loading" />
-              <p className="mt-4 text-center text-sm text-gray-600">Mencari di arsip...</p>
-            </div>
-          </ResponsiveContainer>
-        </main>
-      )}
-
-      {mode === 'results' && (
-        <main className="py-10">
-          <ResponsiveContainer>
-            <Results imageUrl={imageUrl} results={results} onReset={reset} />
-          </ResponsiveContainer>
-        </main>
-      )}
-
-      {mode === 'noresult' && (
-        <main className="py-20">
-          <ResponsiveContainer>
-            <div className="w-full max-w-3xl mx-auto text-center">
-              <p className="text-sm text-gray-700">Tidak ada yang cocok.</p>
-              <p className="mt-1 text-xs text-gray-500">Coba gunakan tangkapan layar yang lebih jelas atau tanpa subtitle.</p>
-              <div className="mt-6">
-                <button onClick={reset} className="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white">Coba Lagi</button>
+        {mode === 'loading' && (
+          <main className="py-16">
+            <ResponsiveContainer>
+              <div className="w-full max-w-3xl mx-auto flex flex-col items-center">
+                <div className="h-12 w-12 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin" aria-label="Loading" />
+                <p className="mt-4 text-center text-sm text-gray-600">Mencari di arsip...</p>
               </div>
-            </div>
-          </ResponsiveContainer>
-        </main>
-      )}
+            </ResponsiveContainer>
+          </main>
+        )}
+
+        {mode === 'results' && (
+          <main className="py-10">
+            <ResponsiveContainer>
+              <Results imageUrl={imageUrl} results={results} onReset={reset} />
+            </ResponsiveContainer>
+          </main>
+        )}
+
+        {mode === 'noresult' && (
+          <main className="py-20">
+            <ResponsiveContainer>
+              <div className="w-full max-w-3xl mx-auto text-center">
+                <p className="text-sm text-gray-700">Tidak ada yang cocok.</p>
+                <p className="mt-1 text-xs text-gray-500">Coba gunakan tangkapan layar yang lebih jelas atau tanpa subtitle.</p>
+                <div className="mt-6">
+                  <button onClick={reset} className="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white">Coba Lagi</button>
+                </div>
+              </div>
+            </ResponsiveContainer>
+          </main>
+        )}
+      </div>
 
       <Footer />
     </div>
