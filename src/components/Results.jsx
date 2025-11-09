@@ -6,21 +6,29 @@ function toTime(t) {
   return `${m}:${s.toString().padStart(2, '0')}`
 }
 
+function getAniListId(result) {
+  // trace.moe can return either anilist: number OR anilist: { id, ... }
+  if (typeof result?.anilist === 'number') return result.anilist
+  return result?.anilist?.id
+}
+
+function getAniListUrl(id) {
+  return `https://anilist.co/anime/${id}`
+}
+
 export default function Results({ imageUrl, results, onReset }) {
   const hasResults = Array.isArray(results) && results.length > 0
 
-  const getAniListUrl = (anilistId) => `https://anilist.co/anime/${anilistId}`
-
-  const openAniList = (anilistId) => {
-    if (!anilistId) return
-    const url = getAniListUrl(anilistId)
+  const openAniList = (id) => {
+    if (!id) return
+    const url = getAniListUrl(id)
     window.open(url, '_blank', 'noopener,noreferrer')
   }
 
-  const handleKey = (e, anilistId) => {
-    if (e.key === 'Enter' || e.key === ' ') {
+  const handleKey = (e, id) => {
+    if ((e.key === 'Enter' || e.key === ' ') && id) {
       e.preventDefault()
-      openAniList(anilistId)
+      openAniList(id)
     }
   }
 
@@ -41,16 +49,17 @@ export default function Results({ imageUrl, results, onReset }) {
           <div className="text-center text-gray-600">Tidak ada hasil.</div>
         )}
         {hasResults && results.map((r, idx) => {
-          const anilistId = r?.anilist?.id
-          const anilistUrl = anilistId ? getAniListUrl(anilistId) : '#'
+          const anilistId = getAniListId(r)
+          const anilistUrl = anilistId ? getAniListUrl(anilistId) : undefined
+          const clickable = Boolean(anilistId)
           return (
             <div
               key={idx}
-              role="button"
-              tabIndex={0}
-              onClick={() => openAniList(anilistId)}
-              onKeyDown={(e) => handleKey(e, anilistId)}
-              className="text-left w-full cursor-pointer"
+              role={clickable ? 'button' : undefined}
+              tabIndex={clickable ? 0 : -1}
+              onClick={clickable ? () => openAniList(anilistId) : undefined}
+              onKeyDown={clickable ? (e) => handleKey(e, anilistId) : undefined}
+              className={`text-left w-full ${clickable ? 'cursor-pointer' : 'cursor-default'}`}
             >
               <div className="flex flex-col md:flex-row gap-4 rounded-xl border border-gray-200 bg-white overflow-hidden hover:border-indigo-300 focus-within:ring-2 focus-within:ring-indigo-500 transition">
                 <div className="md:w-1/2 aspect-video bg-black">
@@ -73,17 +82,19 @@ export default function Results({ imageUrl, results, onReset }) {
                       <div>Waktu: {toTime(r.from)} - {toTime(r.to)}</div>
                     )}
                   </div>
-                  <div className="mt-3">
-                    <a
-                      href={anilistUrl}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center text-indigo-600 hover:text-indigo-700 underline underline-offset-4 text-sm"
-                    >
-                      Buka di AniList →
-                    </a>
-                  </div>
+                  {anilistUrl && (
+                    <div className="mt-3">
+                      <a
+                        href={anilistUrl}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center text-indigo-600 hover:text-indigo-700 underline underline-offset-4 text-sm"
+                      >
+                        Buka di AniList →
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
