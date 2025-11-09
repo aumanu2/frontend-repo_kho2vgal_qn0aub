@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react'
 import Header from './components/Header'
 import ThreeAsset from './components/ThreeAsset'
 import Dropzone from './components/Dropzone'
-import UrlInput from './components/UrlInput'
 import Results from './components/Results'
 
 const ACCENT = 'indigo'
@@ -10,7 +9,6 @@ const ACCENT = 'indigo'
 async function searchByImageFile(file) {
   const form = new FormData()
   form.append('image', file)
-  // Using trace.moe API: POST /search
   const res = await fetch('https://api.trace.moe/search', { method: 'POST', body: form })
   if (!res.ok) throw new Error('Search failed')
   const data = await res.json()
@@ -28,7 +26,6 @@ async function searchByImageUrl(url) {
 export default function App() {
   const [mode, setMode] = useState('idle') // idle | loading | results | noresult
   const [hovering, setHovering] = useState(false)
-  const [showUrlInput, setShowUrlInput] = useState(false)
   const [imageUrl, setImageUrl] = useState('')
   const [results, setResults] = useState([])
 
@@ -58,12 +55,13 @@ export default function App() {
     }
   }
 
-  const handleUrl = async (url) => {
-    if (!url) return
+  const handlePasteUrl = async (e) => {
+    const text = e.clipboardData?.getData('text')
+    if (!text) return
     try {
       setMode('loading')
-      setImageUrl(url)
-      const res = await searchByImageUrl(url)
+      setImageUrl(text)
+      const res = await searchByImageUrl(text)
       if (!res || res.length === 0) {
         setResults([])
         setMode('noresult')
@@ -75,8 +73,6 @@ export default function App() {
       console.error(e)
       setResults([])
       setMode('noresult')
-    } finally {
-      setShowUrlInput(false)
     }
   }
 
@@ -84,11 +80,10 @@ export default function App() {
     setMode('idle')
     setResults([])
     setImageUrl('')
-    setShowUrlInput(false)
   }
 
   return (
-    <div className="min-h-screen bg-[#F9F9F9] text-[#222222]">
+    <div className="min-h-screen bg-[#F9F9F9] text-[#222222]" onPaste={handlePasteUrl}>
       <Header />
 
       {mode === 'idle' && (
@@ -98,16 +93,11 @@ export default function App() {
             onMouseEnter={() => setHovering(true)}
             onMouseLeave={() => setHovering(false)}
           >
-            {!showUrlInput ? (
-              <>
-                <Dropzone onFile={handleFile} onUrlToggle={() => setShowUrlInput(true)} accent={ACCENT} />
-                <div className="mt-6">
-                  <ThreeAsset state={assetState} />
-                </div>
-              </>
-            ) : (
-              <UrlInput onSubmit={handleUrl} onCancel={() => setShowUrlInput(false)} />
-            )}
+            <Dropzone onFile={handleFile} accent={ACCENT} />
+            <div className="mt-6">
+              <ThreeAsset state={assetState} />
+            </div>
+            <p className="mt-4 text-center text-xs text-gray-500">Tip: Kamu bisa paste URL gambar langsung (Ctrl/⌘+V)</p>
           </div>
         </main>
       )}
@@ -140,7 +130,13 @@ export default function App() {
         </main>
       )}
 
-      <footer className="px-6 py-8 text-center text-[10px] text-gray-400">Didukung oleh API trace.moe.</footer>
+      <footer className="px-6 py-8 text-center text-[11px] text-gray-500">
+        <div className="flex items-center justify-center gap-4">
+          <a href="https://github.com/otaruram" target="_blank" rel="noreferrer" className="hover:text-indigo-700 underline underline-offset-4">GitHub</a>
+          <span className="text-gray-300">•</span>
+          <a href="https://www.linkedin.com/in/otaruram/" target="_blank" rel="noreferrer" className="hover:text-indigo-700 underline underline-offset-4">LinkedIn</a>
+        </div>
+      </footer>
     </div>
   )
 }
