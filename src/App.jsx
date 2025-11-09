@@ -1,10 +1,7 @@
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import Header from './components/Header'
-import ThreeAsset from './components/ThreeAsset'
 import Dropzone from './components/Dropzone'
 import Results from './components/Results'
-
-const ACCENT = 'indigo'
 
 async function searchByImageFile(file) {
   const form = new FormData()
@@ -25,15 +22,8 @@ async function searchByImageUrl(url) {
 
 export default function App() {
   const [mode, setMode] = useState('idle') // idle | loading | results | noresult
-  const [hovering, setHovering] = useState(false)
   const [imageUrl, setImageUrl] = useState('')
   const [results, setResults] = useState([])
-
-  const assetState = useMemo(() => {
-    if (mode === 'loading') return 'loading'
-    if (hovering) return 'hover'
-    return 'idle'
-  }, [mode, hovering])
 
   const handleFile = async (file) => {
     try {
@@ -88,15 +78,8 @@ export default function App() {
 
       {mode === 'idle' && (
         <main className="px-6 py-10 flex flex-col items-center">
-          <div
-            className="w-full max-w-3xl"
-            onMouseEnter={() => setHovering(true)}
-            onMouseLeave={() => setHovering(false)}
-          >
-            <Dropzone onFile={handleFile} accent={ACCENT} />
-            <div className="mt-6">
-              <ThreeAsset state={assetState} />
-            </div>
+          <div className="w-full max-w-3xl">
+            <Dropzone onFile={handleFile} />
             <p className="mt-4 text-center text-xs text-gray-500">Tip: Kamu bisa paste URL gambar langsung (Ctrl/⌘+V)</p>
           </div>
         </main>
@@ -104,8 +87,8 @@ export default function App() {
 
       {mode === 'loading' && (
         <main className="px-6 py-24 flex flex-col items-center">
-          <div className="w-full max-w-3xl">
-            <ThreeAsset state="loading" />
+          <div className="w-full max-w-3xl flex flex-col items-center">
+            <div className="h-12 w-12 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin" aria-label="Loading" />
             <p className="mt-4 text-center text-sm text-gray-600">Mencari di arsip...</p>
           </div>
         </main>
@@ -119,11 +102,10 @@ export default function App() {
 
       {mode === 'noresult' && (
         <main className="px-6 py-24 flex flex-col items-center">
-          <div className="w-full max-w-3xl">
-            <ThreeAsset state="idle" />
-            <p className="mt-4 text-center text-sm text-gray-600">Tidak ada yang cocok.</p>
-            <p className="text-center text-xs text-gray-500">Coba gunakan tangkapan layar yang lebih jelas atau tanpa subtitle.</p>
-            <div className="mt-6 text-center">
+          <div className="w-full max-w-3xl text-center">
+            <p className="text-sm text-gray-700">Tidak ada yang cocok.</p>
+            <p className="mt-1 text-xs text-gray-500">Coba gunakan tangkapan layar yang lebih jelas atau tanpa subtitle.</p>
+            <div className="mt-6">
               <button onClick={reset} className="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white">Coba Lagi</button>
             </div>
           </div>
