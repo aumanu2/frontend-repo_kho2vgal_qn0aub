@@ -1,30 +1,13 @@
 import React from 'react'
 
 export default function Footer() {
+  const year = new Date().getFullYear()
   return (
-    <footer className="px-4 sm:px-6 py-10">
-      <div className="mx-auto max-w-7xl">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[12px] sm:text-sm text-gray-600">
-          <p className="text-center sm:text-left">Dibuat sederhana untuk mencari adegan anime dari gambar.</p>
-          <div className="flex items-center gap-4">
-            <a
-              href="https://github.com/otaruram"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-indigo-700 underline underline-offset-4"
-            >
-              GitHub
-            </a>
-            <span className="hidden sm:inline text-gray-300">•</span>
-            <a
-              href="https://www.linkedin.com/in/otaruram/"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-indigo-700 underline underline-offset-4"
-            >
-              LinkedIn
-            </a>
-          </div>
+    <footer className="w-full border-t border-gray-800 bg-gray-900/90 text-gray-300 backdrop-blur supports-[backdrop-filter]:bg-gray-900/80">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="py-4 sm:py-5 flex items-center justify-between text-[12px] sm:text-sm">
+          <p className="tracking-tight">© {year} simpel</p>
+          <span className="text-gray-500">made simple</span>
         </div>
       </div>
     </footer>
