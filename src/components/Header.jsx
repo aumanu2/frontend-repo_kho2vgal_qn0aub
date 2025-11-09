@@ -10,25 +10,7 @@ export default function Header() {
               simpel
             </span>
           </div>
-          <nav className="hidden sm:flex items-center gap-4 text-sm text-gray-600">
-            <a
-              href="https://github.com/otaruram"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-gray-900 transition-colors"
-            >
-              GitHub
-            </a>
-            <span className="text-gray-300">•</span>
-            <a
-              href="https://www.linkedin.com/in/otaruram/"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-gray-900 transition-colors"
-            >
-              LinkedIn
-            </a>
-          </nav>
+          <div className="hidden sm:flex items-center gap-4" />
         </div>
       </div>
     </header>
